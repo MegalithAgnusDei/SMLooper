@@ -19,7 +19,7 @@ namespace SMLooper
             SimFileInfo simFileInfo = new SimFileInfo();
 
             //TODO: парсинг файла
-
+            
             return simFileInfo;
         }
     }

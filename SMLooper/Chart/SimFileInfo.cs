@@ -8,32 +8,32 @@ namespace SMLooper.Chart
 {
     struct BPM
     {
-        double measure;
-        double bpm;
+        public double measure;
+        public double bpm;
     }
 
     struct Chart
     {
-        string stepAutor;
-        string diff;
-        string[] noteData; // Для каждого measure одна ячейка массива. Например noteData[0] = "0000\n0001\n0010\n0000"
+        public string stepAutor;
+        public string diff;
+        public string[] noteData; // Для каждого measure одна ячейка массива. Например noteData[0] = "0000\n0001\n0010\n0000"
     }
     
     class SimFileInfo
     {
-        string title;
-        string subtitle;
-        string artist;
-        string credit;
+        public string title;
+        public string subtitle;
+        public string artist;
+        public string credit;
 
-        string music;
+        public string music;
 
-        string banner;
-        string bg;
-        string cdtitle;
+        public string banner;
+        public string bg;
+        public string cdtitle;
 
-        double offset;
-        BPM[] bpms;
-        Chart[] charts;
+        public double offset;
+        public BPM[] bpms;
+        public Chart[] charts;
     }
 }
