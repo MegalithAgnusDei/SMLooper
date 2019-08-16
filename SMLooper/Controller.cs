@@ -8,5 +8,15 @@ namespace SMLooper
 {
     class Controller
     {
+        public Controller()
+        {
+
+        }
+
+        public void ParseSmFile(String path)
+        {
+            Model model = new Model();
+            model.ParseSmFile(path);
+        }
     }
 }
