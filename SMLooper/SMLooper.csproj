@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chart\SimFileInfo.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="View.cs">

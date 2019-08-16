@@ -36,5 +36,14 @@ namespace SMLooper
             }
         }
 
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void start_Click(object sender, EventArgs e)
+        {
+            controller.Start(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text);
+        }
     }
 }
