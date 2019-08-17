@@ -21,6 +21,7 @@ namespace SMLooper
         public SimFileInfo ParseSmFile(String path)
         {
             SimFileInfo simFileInfo = new SimFileInfo();
+            simFileInfo.path = path;
             StreamReader sr = new StreamReader(path);
             string line;
             string[] words;

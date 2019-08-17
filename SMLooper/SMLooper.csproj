@@ -52,7 +52,6 @@
     <Compile Include="Chart\SimFileInfo.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Model.cs" />
-    <Compile Include="SimFileInfo.cs" />
     <Compile Include="Chart\ChartSlice.cs" />
     <Compile Include="View.cs">
       <SubType>Form</SubType>
