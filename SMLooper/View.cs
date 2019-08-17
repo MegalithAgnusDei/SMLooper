@@ -35,6 +35,20 @@ namespace SMLooper
                 controller.ParseSmFile(filePath);
             }
         }
+        
+        private void cutButton_Click(object sender, EventArgs e)
+        {
+            controller.Cut(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text);
+        }
 
+        private void saveButton_Click(object sender, EventArgs e)
+        {
+            String filePath;
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                filePath = saveFileDialog.FileName;
+                controller.Save(filePath);
+            }
+        }
     }
 }
