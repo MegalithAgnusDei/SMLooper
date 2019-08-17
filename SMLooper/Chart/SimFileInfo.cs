@@ -35,5 +35,7 @@ namespace SMLooper.Chart
         public double offset;
         public BPM[] bpms;
         public Chart[] charts;
+
+        public string path;
     }
 }

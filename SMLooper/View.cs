@@ -35,15 +35,20 @@ namespace SMLooper
                 controller.ParseSmFile(filePath);
             }
         }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        
+        private void cutButton_Click(object sender, EventArgs e)
         {
-
+            controller.Cut(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text);
         }
 
-        private void start_Click(object sender, EventArgs e)
+        private void saveButton_Click(object sender, EventArgs e)
         {
-            controller.Start(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text);
+            String filePath;
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                filePath = saveFileDialog.FileName;
+                controller.Save(filePath);
+            }
         }
     }
 }

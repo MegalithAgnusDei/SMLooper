@@ -32,6 +32,7 @@
             this.openFileButton = new System.Windows.Forms.Button();
             this.fileLocationTextBox = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.saveButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.comboBoxMeasure = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -39,9 +40,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.rightRangeTextBox = new System.Windows.Forms.TextBox();
             this.leftRangeTextBox = new System.Windows.Forms.TextBox();
-            this.start = new System.Windows.Forms.Button();
+            this.cutButton = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.listView = new System.Windows.Forms.ListView();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog
@@ -67,13 +72,24 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.saveButton);
             this.groupBox1.Controls.Add(this.fileLocationTextBox);
             this.groupBox1.Controls.Add(this.openFileButton);
-            this.groupBox1.Location = new System.Drawing.Point(12, 324);
+            this.groupBox1.Location = new System.Drawing.Point(12, 344);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(298, 114);
+            this.groupBox1.Size = new System.Drawing.Size(298, 94);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
+            // 
+            // saveButton
+            // 
+            this.saveButton.Location = new System.Drawing.Point(204, 60);
+            this.saveButton.Name = "saveButton";
+            this.saveButton.Size = new System.Drawing.Size(75, 23);
+            this.saveButton.TabIndex = 2;
+            this.saveButton.Text = "Save";
+            this.saveButton.UseVisualStyleBackColor = true;
+            this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
             // groupBox2
             // 
@@ -83,10 +99,10 @@
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.rightRangeTextBox);
             this.groupBox2.Controls.Add(this.leftRangeTextBox);
-            this.groupBox2.Controls.Add(this.start);
-            this.groupBox2.Location = new System.Drawing.Point(316, 324);
+            this.groupBox2.Controls.Add(this.cutButton);
+            this.groupBox2.Location = new System.Drawing.Point(316, 344);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(472, 114);
+            this.groupBox2.Size = new System.Drawing.Size(472, 94);
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             // 
@@ -100,7 +116,6 @@
             this.comboBoxMeasure.Name = "comboBoxMeasure";
             this.comboBoxMeasure.Size = new System.Drawing.Size(121, 21);
             this.comboBoxMeasure.TabIndex = 6;
-            this.comboBoxMeasure.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label3
             // 
@@ -143,21 +158,39 @@
             this.leftRangeTextBox.Size = new System.Drawing.Size(56, 20);
             this.leftRangeTextBox.TabIndex = 1;
             // 
-            // start
+            // cutButton
             // 
-            this.start.Location = new System.Drawing.Point(391, 85);
-            this.start.Name = "start";
-            this.start.Size = new System.Drawing.Size(75, 23);
-            this.start.TabIndex = 0;
-            this.start.Text = "Start";
-            this.start.UseVisualStyleBackColor = true;
-            this.start.Click += new System.EventHandler(this.start_Click);
+            this.cutButton.Location = new System.Drawing.Point(391, 60);
+            this.cutButton.Name = "cutButton";
+            this.cutButton.Size = new System.Drawing.Size(75, 23);
+            this.cutButton.TabIndex = 0;
+            this.cutButton.Text = "Cut";
+            this.cutButton.UseVisualStyleBackColor = true;
+            this.cutButton.Click += new System.EventHandler(this.cutButton_Click);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.listView);
+            this.groupBox3.Location = new System.Drawing.Point(12, 12);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(298, 326);
+            this.groupBox3.TabIndex = 5;
+            this.groupBox3.TabStop = false;
+            // 
+            // listView
+            // 
+            this.listView.Location = new System.Drawing.Point(6, 10);
+            this.listView.Name = "listView";
+            this.listView.Size = new System.Drawing.Size(286, 310);
+            this.listView.TabIndex = 0;
+            this.listView.UseCompatibleStateImageBehavior = false;
             // 
             // View
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "View";
@@ -167,6 +200,7 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -184,7 +218,11 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox rightRangeTextBox;
         private System.Windows.Forms.TextBox leftRangeTextBox;
-        private System.Windows.Forms.Button start;
+        private System.Windows.Forms.Button cutButton;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Button saveButton;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.ListView listView;
     }
 }
 
