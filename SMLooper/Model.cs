@@ -65,6 +65,7 @@ namespace SMLooper
                         bpof = words[1].Split('=');
                         bpm.measure = Convert.ToDouble(bpof[0].Replace('.', ','));
                         bpm.bpm = Convert.ToDouble(bpof[1].Trim(';').Replace('.', ','));
+                        simFileInfo.bpms = new BPM[] { bpm };
                     }
                     else
                     {
