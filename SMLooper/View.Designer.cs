@@ -42,8 +42,9 @@
             this.leftRangeTextBox = new System.Windows.Forms.TextBox();
             this.cutButton = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.listView = new System.Windows.Forms.ListView();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -223,6 +224,7 @@
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.ListView listView;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
     }
 }
 

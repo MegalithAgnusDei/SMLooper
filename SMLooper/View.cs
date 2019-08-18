@@ -38,15 +38,15 @@ namespace SMLooper
         
         private void cutButton_Click(object sender, EventArgs e)
         {
-            controller.Cut(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text);
+            controller.Cut(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text, 0);
         }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
             String filePath;
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                filePath = saveFileDialog.FileName;
+                filePath = folderBrowserDialog.SelectedPath;
                 controller.Save(filePath);
             }
         }

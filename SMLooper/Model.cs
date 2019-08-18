@@ -124,10 +124,10 @@ namespace SMLooper
             return simFileInfo;
         }
 
-        public ChartSlice Cut(double left, double right, Measure measure, SimFileInfo simFileInfo)
+        public ChartSlice Cut(double left, double right, Measure measure, SimFileInfo simFileInfo, int diffIndex)
         {
-            double begin = MeasureToMs(left, simFileInfo.offset, simFileInfo.bpms);
-            double end = MeasureToMs(right, simFileInfo.offset, simFileInfo.bpms);
+            double begin = MeasureToMs((int)left, simFileInfo.offset, simFileInfo.bpms);
+            double end = MeasureToMs(Math.Ceiling(right), simFileInfo.offset, simFileInfo.bpms);
 
             Mp3FileReader reader = new Mp3FileReader(simFileInfo.path+@"/"+simFileInfo.music);
 
@@ -143,7 +143,76 @@ namespace SMLooper
             }
             reader.Close();
 
-            return new ChartSlice(1.0, bytes.ToArray(), null);
+            int totalChunks = (int)(Math.Ceiling(right) - (int)left);
+            string[] notes = new string[totalChunks];
+            for(int i = 0; i < totalChunks; i++)
+            {
+                List<string> notesTemp = new List<string>();
+                if(i == 0)
+                {
+                    double skipPart = left - (int)left;
+                    string[] arr = simFileInfo.charts[diffIndex].noteData[(int)left + i].Split('\n');
+
+                    for(int j = 0; j < arr.Length; j++)
+                    {
+                        if((double)j/ (double)(arr.Length-1) >= skipPart)
+                        {
+                            notesTemp.Add(arr[j]);
+                        }
+                        else
+                        {
+                            notesTemp.Add("0000");
+                        }
+                    }
+                }
+                else if(i == totalChunks - 1)
+                {
+                    double skipPart = Math.Ceiling(right) - right;
+                    string[] arr = simFileInfo.charts[diffIndex].noteData[(int)left + i].Split('\n');
+
+                    for (int j = 0; j < arr.Length; j++)
+                    {
+                        if (1 - ((double)j / (double)(arr.Length - 1)) >= skipPart)
+                        {
+                            notesTemp.Add(arr[j]);
+                        }
+                        else
+                        {
+                            notesTemp.Add("0000");
+                        }
+                    }
+                }
+                else
+                {
+                    string[] arr = simFileInfo.charts[diffIndex].noteData[(int)left + i].Split('\n');
+                    for (int j = 0; j < arr.Length; j++)
+                    {
+                        notesTemp.Add(arr[j]);
+                    }
+                }
+                notes[i] = string.Join("\n", notesTemp.ToArray());
+            }
+
+            List<BPM> bpmList = new List<BPM>();
+            BPM leftBpm = new BPM();
+            for (int i = 0; i < simFileInfo.bpms.Length; i++)
+            {
+                if(simFileInfo.bpms[i].measure < (int)left)
+                {
+                    leftBpm.bpm = simFileInfo.bpms[i].bpm;
+                    leftBpm.measure = 0;
+                }
+                else if(simFileInfo.bpms[i].measure > (int)left && simFileInfo.bpms[i].measure < Math.Ceiling(right))
+                {
+                    BPM bpm = new BPM();
+                    bpm.measure = simFileInfo.bpms[i].measure - (int)left;
+                    bpm.bpm = simFileInfo.bpms[i].bpm;
+                    bpmList.Add(bpm);
+                }
+            }
+            bpmList.Insert(0, leftBpm);
+
+            return new ChartSlice(1.0, bytes.ToArray(), notes,bpmList.ToArray());
         }
 
         private double MeasureToMs(double measure, double offset, BPM[] bpms)
