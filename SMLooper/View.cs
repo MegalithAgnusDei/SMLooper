@@ -32,14 +32,35 @@ namespace SMLooper
                 filePath = openFileDialog.FileName;
                 fileLocationTextBox.Text = filePath;
 
-                controller.ParseSmFile(filePath);
+                Chart.SimFileInfo smInfo = controller.ParseSmFile(filePath);
+
+                groupBox4.Visible = true;
+                if (smInfo.banner != "")
+                    pictureBox1.Image = Image.FromFile(smInfo.path + "//" + smInfo.banner);
+                label4.Text = smInfo.artist + " - " + smInfo.title;
+                foreach (Chart.Chart element in smInfo.charts)
+                {
+                    comboBox1.Items.Add(element.diff);
+                }
+                comboBox1.SelectedIndex = 0;
             }
         }
         
+
+
         private void cutButton_Click(object sender, EventArgs e)
         {
-            controller.Cut(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text, 0);
+            updateList(controller.Cut(leftRangeTextBox.Text, rightRangeTextBox.Text, comboBoxMeasure.Text, 0));
         }
+
+        private void updateList(Chart.ChartSlice slice)
+        {
+            ListViewItem lvi = new ListViewItem();
+            lvi.Text = Convert.ToString(slice.rate);
+
+            listView.Items.Add(lvi);
+        }
+
 
         private void saveButton_Click(object sender, EventArgs e)
         {
@@ -50,5 +71,6 @@ namespace SMLooper
                 controller.Save(filePath);
             }
         }
+
     }
 }

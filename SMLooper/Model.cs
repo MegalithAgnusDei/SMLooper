@@ -61,12 +61,29 @@ namespace SMLooper
                 {
                     if (words[1].EndsWith(";"))
                     {
-                        BPM bpm = new BPM();
-                        string[] bpof;
-                        bpof = words[1].Split('=');
-                        bpm.measure = Convert.ToDouble(bpof[0].Replace('.', ','));
-                        bpm.bpm = Convert.ToDouble(bpof[1].Trim(';').Replace('.', ','));
-                        simFileInfo.bpms = new BPM[] { bpm };
+                        if (words[1].Split(',').Length > 1)
+                        {
+                            List<BPM> bpmList = new List<BPM>();
+                            string[] bpofarr = words[1].Trim(';').Split(',');
+                            foreach (string element in bpofarr)
+                            {
+                                BPM bpm = new BPM();
+                                string[] bpof = element.Split('=');
+                                bpm.measure = Convert.ToDouble(bpof[0].Replace('.', ','));
+                                bpm.bpm = Convert.ToDouble(bpof[1].Replace('.', ','));
+                                bpmList.Add(bpm);
+                            }
+                            simFileInfo.bpms = bpmList.ToArray();
+                        }
+                        else
+                        {
+                            BPM bpm = new BPM();
+                            string[] bpof;
+                            bpof = words[1].Split('=');
+                            bpm.measure = Convert.ToDouble(bpof[0].Replace('.', ','));
+                            bpm.bpm = Convert.ToDouble(bpof[1].Trim(';').Replace('.', ','));
+                            simFileInfo.bpms = new BPM[] { bpm };
+                        }
                     }
                     else
                     {
