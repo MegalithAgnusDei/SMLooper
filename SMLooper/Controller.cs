@@ -45,10 +45,11 @@ namespace SMLooper
             return chartSlice;
         }
 
-        public void Save(string path)
+        public void Save(string path, bool easyIn)
         {
             path = path + @"/" + Path.GetFileName(simFileInfo.path) + " (Looped)";
             Directory.CreateDirectory(path);
+
             //bg bn copy
             if (simFileInfo.bg != "")
                 File.Copy(simFileInfo.path + @"/" + simFileInfo.bg, path + @"/" + simFileInfo.bg);
@@ -56,9 +57,17 @@ namespace SMLooper
                 File.Copy(simFileInfo.path + @"/" + simFileInfo.banner, path + @"/" + simFileInfo.banner);
             if (simFileInfo.cdtitle != "")
                 File.Copy(simFileInfo.path + @"/" + simFileInfo.cdtitle, path + @"/" + simFileInfo.cdtitle);
+
+            double offset = 0;
+
             //write music
             using (var writer = File.Create(path+@"/"+simFileInfo.music))
             {
+                if (easyIn)
+                {
+                    byte[] preview = new Model().CutPreview(chartSlices[0].start, simFileInfo, out offset);
+                    writer.Write(preview, 0, preview.Length);
+                }
                 for(int i = 0; i < chartSlices.Count(); i++)
                 {
                     writer.Write(chartSlices[i].rawData, 0, chartSlices[i].rawData.Length);
@@ -83,16 +92,16 @@ namespace SMLooper
                 writer.WriteLine("#SAMPLESTART:0.000;");
                 writer.WriteLine("#SAMPLELENGTH:0.000;");
                 writer.WriteLine("#SELECTABLE:YES;");
-                writer.WriteLine("#OFFSET:0.000;");
+                writer.WriteLine("#OFFSET:" + String.Format("{0:0.0000}", offset).Replace(',','.') +";");
                 string bpmString = "#BPMS:";
                 int tempMeasureNum = 0;
                 for(int i = 0; i < chartSlices.Count(); i++)
                 {
                     for(int j = 0; j < chartSlices[i].bpms.Length; j++)
                     {
-                        bpmString += chartSlices[i].bpms[j].measure*4 + tempMeasureNum;
+                        bpmString += (chartSlices[i].bpms[j].measure*4 + tempMeasureNum).ToString().Replace(',','.');
                         bpmString += "=";
-                        bpmString += chartSlices[i].bpms[j].bpm;
+                        bpmString += chartSlices[i].bpms[j].bpm.ToString().Replace(',', '.');
                         bpmString += ",\n";
                     }
                     tempMeasureNum += chartSlices[i].notes.Length*4;
@@ -111,6 +120,28 @@ namespace SMLooper
                 writer.WriteLine(";");
 
             }
+        }
+
+        public void RemoveSliceByHash(int hash)
+        {
+            for(int i = 0; i < chartSlices.Count();i++)
+            {
+                if(chartSlices[i].GetHashCode() == hash)
+                {
+                    chartSlices.RemoveAt(i);
+                    break;
+                }
+            }
+        }
+
+        public int GetCountOfSlices()
+        {
+            return chartSlices.Count();
+        }
+
+        public List<ChartSlice> GetChartSlices()
+        {
+            return chartSlices;
         }
     }
 }
