@@ -20,15 +20,15 @@ namespace SMLooper
 
         }
 
-        public void ParseSmFile(String path)
+        public SimFileInfo ParseSmFile(String path)
         {
             Model model = new Model();
             simFileInfo = model.ParseSmFile(path);
 
-            // возвращать инфо чтобы красивенько было, баннер там и название например
+            return simFileInfo;
         }
 
-        public void Cut(string left, string right, string _measure, int diffIndex)
+        public ChartSlice Cut(string left, string right, string _measure, int diffIndex)
         {
             Measure measure = Measure.Measures;
             if(_measure == "Measures")
@@ -42,7 +42,7 @@ namespace SMLooper
             ChartSlice chartSlice = model.Cut(left_d, right_d, measure, simFileInfo, diffIndex);
             chartSlices.Add(chartSlice);
 
-            // возвращать что нибудь
+            return chartSlice;
         }
 
         public void Save(string path)
