@@ -47,9 +47,19 @@ namespace SMLooper
 
         public void Save(string path, bool easyIn)
         {
-            path = path + @"/" + simFileInfo.title;
+            path = path + @"/" + Path.GetFileName(simFileInfo.path) + " (Looped)";
             Directory.CreateDirectory(path);
+
+            //bg bn copy
+            if (simFileInfo.bg != "")
+                File.Copy(simFileInfo.path + @"/" + simFileInfo.bg, path + @"/" + simFileInfo.bg);
+            if (simFileInfo.banner != "")
+                File.Copy(simFileInfo.path + @"/" + simFileInfo.banner, path + @"/" + simFileInfo.banner);
+            if (simFileInfo.cdtitle != "")
+                File.Copy(simFileInfo.path + @"/" + simFileInfo.cdtitle, path + @"/" + simFileInfo.cdtitle);
+
             double offset = 0;
+
             //write music
             using (var writer = File.Create(path+@"/"+simFileInfo.music))
             {
@@ -68,17 +78,17 @@ namespace SMLooper
             using (var writer = File.CreateText(path + @"/" + Path.GetFileName(simFileInfo.path)+".sm"))
             {
                 writer.WriteLine("#TITLE:" + simFileInfo.title + ";");
-                writer.WriteLine("#SUBTITLE:;");
-                writer.WriteLine("#ARTIST:" + simFileInfo.artist + ";");
                 writer.WriteLine("#TITLETRANSLIT:;");
+                writer.WriteLine("#SUBTITLE:" + simFileInfo.subtitle + ";");
                 writer.WriteLine("#SUBTITLETRANSLIT:;");
+                writer.WriteLine("#ARTIST:" + simFileInfo.artist + ";");
                 writer.WriteLine("#ARTISTTRANSLIT:;");
                 writer.WriteLine("#GENRE:;");
                 writer.WriteLine("#CREDIT:" + simFileInfo.credit + ";");
                 writer.WriteLine("#MUSIC:" + simFileInfo.music + ";");
-                writer.WriteLine("#BANNER:;");
-                writer.WriteLine("#BACKGROUND:;");
-                writer.WriteLine("#CDTITLE:;");
+                writer.WriteLine("#BANNER:" + simFileInfo.banner + ";");
+                writer.WriteLine("#BACKGROUND:" + simFileInfo.bg + ";");
+                writer.WriteLine("#CDTITLE:" + simFileInfo.cdtitle + ";");
                 writer.WriteLine("#SAMPLESTART:0.000;");
                 writer.WriteLine("#SAMPLELENGTH:0.000;");
                 writer.WriteLine("#SELECTABLE:YES;");
