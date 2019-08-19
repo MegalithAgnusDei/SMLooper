@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NAudio.Wave;
+using NAudio.Lame;
 using System.IO;
 
 namespace SMLooper
@@ -158,6 +159,7 @@ namespace SMLooper
                         bytes.AddRange(frame.RawData);
                 }
             }
+            WaveFormat wf = reader.WaveFormat;
             reader.Close();
 
             int totalChunks = (int)(Math.Ceiling(right) - (int)left);
@@ -229,7 +231,8 @@ namespace SMLooper
             }
             bpmList.Insert(0, leftBpm);
 
-            return new ChartSlice(1.0, bytes.ToArray(), notes,bpmList.ToArray());
+
+            return new ChartSlice(1.0, bytes.ToArray(), notes,bpmList.ToArray(), wf, (int)left);
         }
 
         private double MeasureToMs(double measure, double offset, BPM[] bpms)
@@ -252,6 +255,55 @@ namespace SMLooper
             tempMs += trueOffset;
 
             return tempMs;
-        } 
+        }
+
+        public byte[] CutPreview(double right, SimFileInfo simFileInfo, out double offset)
+        {
+            double left = right - 0.5 >= 0 ? right - 0.5 : 0;
+            double begin = MeasureToMs((int)left, simFileInfo.offset, simFileInfo.bpms);
+            double end = MeasureToMs(right, simFileInfo.offset, simFileInfo.bpms);
+            offset = (double)(begin-end)/1000;
+
+            Mp3FileReader reader = new Mp3FileReader(simFileInfo.path + @"/" + simFileInfo.music);
+
+            List<byte> bytes = new List<byte>();
+            Mp3Frame frame;
+            while ((frame = reader.ReadNextFrame()) != null)
+            {
+                if (reader.CurrentTime.TotalMilliseconds >= begin)
+                {
+                    if (reader.CurrentTime.TotalMilliseconds <= end)
+                        bytes.AddRange(frame.RawData);
+                }
+            }
+            int br = (int)Math.Round((double)reader.Mp3WaveFormat.AverageBytesPerSecond * 8 / 1000);
+            reader.Close();
+
+            return bytes.ToArray();
+        }
+        private byte[] ConvertMp3ToWav(byte[] data)
+        {
+            using (var ms = new MemoryStream())
+            using (var mp3 = new Mp3FileReader(new MemoryStream(data)))
+            using (var pcm = WaveFormatConversionStream.CreatePcmStream(mp3))
+            {
+                WaveFileWriter.WriteWavFileToStream(ms, pcm);
+                return ms.ToArray();
+            }
+        }
+        public byte[] ConvertWavToMp3(byte[] data, int br)
+        {
+
+            using (var retMs = new MemoryStream())
+            using (var ms = new MemoryStream(data))
+            using (var rdr = new WaveFileReader(ms))
+            using (var wtr = new LameMP3FileWriter(retMs, rdr.WaveFormat, br))
+            {
+                rdr.CopyTo(wtr);
+                return retMs.ToArray();
+            }
+
+
+        }
     }
 }
