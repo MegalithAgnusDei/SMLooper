@@ -144,14 +144,17 @@ namespace SMLooper
 
         private static void TrimWavFile(string inPath, string outPath, double cutFromStart, double cutFromEnd)
         {
+            double kastilEbany =   0.0001 * Math.Pow(cutFromStart / 1000, 2) + 2.2575 * (cutFromStart / 1000) + 3.6794; //0;// 0.0001*Math.Pow(cutFromStart / 1000,3) + (-1)*0.0216*Math.Pow(cutFromStart / 1000,2) + 4.3671*(cutFromStart / 1000) + 1.5984; // -1*0.0034*(cutFromStart/1000) * (cutFromStart / 1000) + 2.9181*(cutFromStart / 1000) + 16.5694;
+            cutFromStart += kastilEbany;
+            cutFromEnd += kastilEbany;
             using (WaveFileReader reader = new WaveFileReader(inPath))
             {
                 using (WaveFileWriter writer = new WaveFileWriter(outPath, reader.WaveFormat))
                 {
                     int bytesPerMillisecond =(int)((double)reader.Length/reader.TotalTime.TotalMilliseconds);
 
-                    int startPos = (int)((cutFromStart-2.5*(cutFromEnd- cutFromStart)/1000) * bytesPerMillisecond);
-                    int endPos = (int)((cutFromEnd) * bytesPerMillisecond); 
+                    int startPos = (int)((cutFromStart) * bytesPerMillisecond);
+                    int endPos = (int)((cutFromEnd + 2.24 * (cutFromEnd - cutFromStart) / 1000) * bytesPerMillisecond); 
 
                     TrimWavFile(reader, writer, startPos, endPos);
                 }

@@ -63,11 +63,11 @@ namespace SMLooper
 
             //bg bn copy
             if (simFileInfo.bg != "")
-                File.Copy(simFileInfo.path + @"/" + simFileInfo.bg, path + @"/" + simFileInfo.bg);
+                File.Copy(simFileInfo.path + @"/" + simFileInfo.bg, path + @"/" + simFileInfo.bg, true);
             if (simFileInfo.banner != "")
-                File.Copy(simFileInfo.path + @"/" + simFileInfo.banner, path + @"/" + simFileInfo.banner);
+                File.Copy(simFileInfo.path + @"/" + simFileInfo.banner, path + @"/" + simFileInfo.banner, true);
             if (simFileInfo.cdtitle != "")
-                File.Copy(simFileInfo.path + @"/" + simFileInfo.cdtitle, path + @"/" + simFileInfo.cdtitle);
+                File.Copy(simFileInfo.path + @"/" + simFileInfo.cdtitle, path + @"/" + simFileInfo.cdtitle, true);
 
             double offset = -0.050;
 
