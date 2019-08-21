@@ -142,25 +142,47 @@ namespace SMLooper
             return simFileInfo;
         }
 
-        public ChartSlice Cut(double left, double right, Measure measure, SimFileInfo simFileInfo, int diffIndex)
+        private static void TrimWavFile(string inPath, string outPath, double cutFromStart, double cutFromEnd)
+        {
+            using (WaveFileReader reader = new WaveFileReader(inPath))
+            {
+                using (WaveFileWriter writer = new WaveFileWriter(outPath, reader.WaveFormat))
+                {
+                    int bytesPerMillisecond =(int)((double)reader.Length/reader.TotalTime.TotalMilliseconds);
+
+                    int startPos = (int)((cutFromStart-2.5*(cutFromEnd- cutFromStart)/1000) * bytesPerMillisecond);
+                    int endPos = (int)((cutFromEnd) * bytesPerMillisecond); 
+
+                    TrimWavFile(reader, writer, startPos, endPos);
+                }
+            }
+        }
+
+        private static void TrimWavFile(WaveFileReader reader, WaveFileWriter writer, int startPos, int endPos)
+        {
+            int mod = (endPos - startPos) % 4;
+            endPos -= mod;
+            byte[] bytes = new byte[endPos - startPos];
+            reader.Position = startPos;
+            reader.Read(bytes, 0, endPos - startPos);
+            writer.Write(bytes, 0, bytes.Length);
+        }
+
+        public ChartSlice Cut(double left, double right, Measure measure, SimFileInfo simFileInfo, int diffIndex, WaveFormat wf)
         {
             double begin = MeasureToMs((int)left, simFileInfo.offset, simFileInfo.bpms);
             double end = MeasureToMs(Math.Ceiling(right), simFileInfo.offset, simFileInfo.bpms);
+            
+            TrimWavFile(Path.GetTempPath() + "/" + simFileInfo.music + ".wav", Path.GetTempPath() + "/temp.wav", begin, end);
+            var w = File.Open(Path.GetTempPath() + "/temp.wav", FileMode.Open);
+            
+            byte[] bytes = new byte[w.Length];
+            w.Read(bytes, 0, (int)w.Length);
+            w.Close();
 
-            Mp3FileReader reader = new Mp3FileReader(simFileInfo.path+@"/"+simFileInfo.music);
+            File.Delete(Path.GetTempPath() + "/temp.wav");
 
-            List<byte> bytes = new List<byte>();
-            Mp3Frame frame;
-            while ((frame = reader.ReadNextFrame()) != null)
-            {
-                if (reader.CurrentTime.TotalMilliseconds >= begin)
-                {
-                    if (reader.CurrentTime.TotalMilliseconds <= end)
-                        bytes.AddRange(frame.RawData);
-                }
-            }
-            WaveFormat wf = reader.WaveFormat;
-            reader.Close();
+            ///////////////////////
 
             int totalChunks = (int)(Math.Ceiling(right) - (int)left);
             string[] notes = new string[totalChunks];
@@ -232,7 +254,7 @@ namespace SMLooper
             bpmList.Insert(0, leftBpm);
 
 
-            return new ChartSlice(1.0, bytes.ToArray(), notes,bpmList.ToArray(), wf, (int)left);
+            return new ChartSlice(1.0, bytes, notes,bpmList.ToArray(), wf, (int)left);
         }
 
         private double MeasureToMs(double measure, double offset, BPM[] bpms)
@@ -272,7 +294,7 @@ namespace SMLooper
             {
                 if (reader.CurrentTime.TotalMilliseconds >= begin)
                 {
-                    if (reader.CurrentTime.TotalMilliseconds <= end)
+                    if (reader.CurrentTime.TotalMilliseconds < end)
                         bytes.AddRange(frame.RawData);
                 }
             }

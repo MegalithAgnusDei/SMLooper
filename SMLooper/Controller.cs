@@ -1,4 +1,6 @@
-﻿using SMLooper.Chart;
+﻿using NAudio.Lame;
+using NAudio.Wave;
+using SMLooper.Chart;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +16,7 @@ namespace SMLooper
     {
         SimFileInfo simFileInfo = new SimFileInfo();
         List<ChartSlice> chartSlices = new List<ChartSlice>();
+        WaveFormat wf;
 
         public Controller()
         {
@@ -27,7 +30,7 @@ namespace SMLooper
 
             return simFileInfo;
         }
-
+        
         public ChartSlice Cut(string left, string right, string _measure, int diffIndex)
         {
             Measure measure = Measure.Measures;
@@ -39,10 +42,18 @@ namespace SMLooper
             double right_d = Double.Parse(right);
 
             Model model = new Model();
-            ChartSlice chartSlice = model.Cut(left_d, right_d, measure, simFileInfo, diffIndex);
+            ChartSlice chartSlice = model.Cut(left_d, right_d, measure, simFileInfo, diffIndex, wf);
             chartSlices.Add(chartSlice);
 
             return chartSlice;
+        }
+
+        public void MakeWav()
+        {
+            Mp3FileReader reader = new Mp3FileReader(simFileInfo.path + @"/" + simFileInfo.music);
+            WaveStream pcm = WaveFormatConversionStream.CreatePcmStream(reader);
+            wf = pcm.WaveFormat;
+            WaveFileWriter.CreateWaveFile(Path.GetTempPath() + "/"+ simFileInfo.music+".wav", pcm);
         }
 
         public void Save(string path, bool easyIn)
@@ -58,21 +69,36 @@ namespace SMLooper
             if (simFileInfo.cdtitle != "")
                 File.Copy(simFileInfo.path + @"/" + simFileInfo.cdtitle, path + @"/" + simFileInfo.cdtitle);
 
-            double offset = 0;
+            double offset = -0.050;
 
             //write music
-            using (var writer = File.Create(path+@"/"+simFileInfo.music))
+            using (var writer = new NAudio.Wave.WaveFileWriter(path + @"/temp.wav", chartSlices[0].wf))
             {
+                for (int i = 0; i < chartSlices.Count(); i++)
+                {
+                    writer.Write(chartSlices[i].rawData, 44, chartSlices[i].rawData.Length - 44);
+                }
+            }
+            using (var rdr = new WaveFileReader(path + @"/temp.wav"))
+            using (var wtr = new LameMP3FileWriter(path + @"/" + simFileInfo.music, rdr.WaveFormat, 128))
+            {
+                rdr.CopyTo(wtr);
+            }
+            File.Delete(path + @"/temp.wav");
+            /*
+            using (var writer = File.Create(path + @"/" + simFileInfo.music))
+            {
+                writer.Write(chartSlices[0].rawData, 0, 44);
                 if (easyIn)
                 {
                     byte[] preview = new Model().CutPreview(chartSlices[0].start, simFileInfo, out offset);
                     writer.Write(preview, 0, preview.Length);
                 }
-                for(int i = 0; i < chartSlices.Count(); i++)
+                for (int i = 0; i < chartSlices.Count(); i++)
                 {
-                    writer.Write(chartSlices[i].rawData, 0, chartSlices[i].rawData.Length);
+                    writer.Write(chartSlices[i].rawData, 44, chartSlices[i].rawData.Length - 44);
                 }
-            }
+            }*/
             //write simfile
             //...
             using (var writer = File.CreateText(path + @"/" + Path.GetFileName(simFileInfo.path)+".sm"))
@@ -120,6 +146,7 @@ namespace SMLooper
                 writer.WriteLine(";");
 
             }
+            
         }
 
         public void RemoveSliceByHash(int hash)
@@ -142,6 +169,11 @@ namespace SMLooper
         public List<ChartSlice> GetChartSlices()
         {
             return chartSlices;
+        }
+
+        public void ClearChartSlicesList()
+        {
+            chartSlices.Clear();
         }
     }
 }

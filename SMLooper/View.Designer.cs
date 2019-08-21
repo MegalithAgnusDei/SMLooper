@@ -32,6 +32,7 @@
             this.openFileButton = new System.Windows.Forms.Button();
             this.fileLocationTextBox = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.easyInChBox = new System.Windows.Forms.CheckBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.comboBoxMeasure = new System.Windows.Forms.ComboBox();
@@ -50,7 +51,6 @@
             this.titleLabel = new System.Windows.Forms.Label();
             this.bannerPicBox = new System.Windows.Forms.PictureBox();
             this.mainWaveViewer = new NAudio.Gui.WaveViewer();
-            this.easyInChBox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -90,6 +90,17 @@
             this.groupBox1.Size = new System.Drawing.Size(298, 94);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
+            // 
+            // easyInChBox
+            // 
+            this.easyInChBox.AutoSize = true;
+            this.easyInChBox.Enabled = false;
+            this.easyInChBox.Location = new System.Drawing.Point(91, 64);
+            this.easyInChBox.Name = "easyInChBox";
+            this.easyInChBox.Size = new System.Drawing.Size(107, 17);
+            this.easyInChBox.TabIndex = 3;
+            this.easyInChBox.Text = "Add short easy-in";
+            this.easyInChBox.UseVisualStyleBackColor = true;
             // 
             // saveButton
             // 
@@ -248,18 +259,6 @@
             this.mainWaveViewer.StartPosition = ((long)(0));
             this.mainWaveViewer.TabIndex = 7;
             this.mainWaveViewer.WaveStream = null;
-            // 
-            // easyInChBox
-            // 
-            this.easyInChBox.AutoSize = true;
-            this.easyInChBox.Checked = true;
-            this.easyInChBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.easyInChBox.Location = new System.Drawing.Point(91, 64);
-            this.easyInChBox.Name = "easyInChBox";
-            this.easyInChBox.Size = new System.Drawing.Size(107, 17);
-            this.easyInChBox.TabIndex = 3;
-            this.easyInChBox.Text = "Add short easy-in";
-            this.easyInChBox.UseVisualStyleBackColor = true;
             // 
             // View
             // 

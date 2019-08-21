@@ -35,6 +35,7 @@ namespace SMLooper
                 fileLocationTextBox.Text = filePath;
 
                 Chart.SimFileInfo smInfo = controller.ParseSmFile(filePath);
+                controller.MakeWav();
 
                 groupBox4.Visible = true;
                 if (smInfo.banner != "")
@@ -46,10 +47,9 @@ namespace SMLooper
                     comboBox1.Items.Add(element.diff);
                 }
                 comboBox1.SelectedIndex = 0;
+                
             }
         }
-        
-
 
         private void cutButton_Click(object sender, EventArgs e)
         {
@@ -69,8 +69,8 @@ namespace SMLooper
             waveViewer.Width = subPanel.Width / 2;
             waveViewer.Height = subPanel.Height - 4;
             waveViewer.Location = new System.Drawing.Point(2, 2);
-            waveViewer.SamplesPerPixel = slice.rawData.Length / waveViewer.Width;
-            waveViewer.WaveStream = new NAudio.Wave.Mp3FileReader(new MemoryStream(slice.rawData));
+            waveViewer.SamplesPerPixel = slice.rawData.Length / waveViewer.Width /4;
+            waveViewer.WaveStream = new NAudio.Wave.WaveFileReader(new MemoryStream(slice.rawData));
             waveViewer.BackColor = Color.White;
 
             TextBox textBox = new TextBox();
@@ -110,17 +110,22 @@ namespace SMLooper
         private void UpdateMainWaveform()
         {
             List<Chart.ChartSlice> chs = controller.GetChartSlices();
+            if(chs.Count() == 0)
+            {
+                mainWaveViewer.WaveStream = null;
+                return;
+            }
             byte[] rawData = chs[0].rawData;
             for(int i = 1; i < chs.Count(); i++)
             {
-                byte[] newArray = new byte[rawData.Length + chs[i].rawData.Length];
+                byte[] newArray = new byte[rawData.Length + chs[i].rawData.Length-44];
                 Array.Copy(rawData, newArray, rawData.Length);
-                Array.Copy(chs[i].rawData, 0, newArray, rawData.Length, chs[i].rawData.Length);
+                Array.Copy(chs[i].rawData, 44, newArray, rawData.Length, chs[i].rawData.Length-44);
                 rawData = newArray;
             }
-
-            mainWaveViewer.SamplesPerPixel = rawData.Length / mainWaveViewer.Width;
-            mainWaveViewer.WaveStream = new NAudio.Wave.Mp3FileReader(new MemoryStream(rawData));
+           
+            mainWaveViewer.SamplesPerPixel = rawData.Length / mainWaveViewer.Width / 4;
+            mainWaveViewer.WaveStream = new NAudio.Wave.RawSourceWaveStream(new MemoryStream(rawData),chs[0].wf);
         }
 
         protected void LB_Click(object sender, EventArgs e)
@@ -142,6 +147,18 @@ namespace SMLooper
             {
                 filePath = folderBrowserDialog.SelectedPath;
                 controller.Save(filePath, easyInChBox.Checked);
+                panel.Controls.Clear();
+                countOfPanels = 0;
+                controller.ClearChartSlicesList();
+                UpdateMainWaveform();
+                titleLabel.Text = "";
+                comboBox1.Items.Clear();
+                bannerPicBox.Image = null;
+                fileLocationTextBox.Text = "";
+                controller = new Controller();
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
         }
 
