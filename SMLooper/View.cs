@@ -72,13 +72,25 @@ namespace SMLooper
             waveViewer.SamplesPerPixel = slice.rawData.Length / waveViewer.Width /4;
             waveViewer.WaveStream = new NAudio.Wave.WaveFileReader(new MemoryStream(slice.rawData));
             waveViewer.BackColor = Color.White;
-
+            /*
             TextBox textBox = new TextBox();
             textBox.Width = subPanel.Width / 4;
             textBox.Height = subPanel.Height / 2 - 4;
             textBox.Location = new System.Drawing.Point(waveViewer.Width + 8, (subPanel.Height - textBox.Height) / 2);
             textBox.Text = String.Format("{0:0.00}", slice.rate);
+            textBox.TextAlign = HorizontalAlignment.Right;*/
+
+            NumericUpDown textBox = new NumericUpDown();
+            textBox.DecimalPlaces = 2;
+            textBox.Increment = 0.01M;
+            textBox.Minimum = 0.70M;
+            textBox.Maximum = 3.00M;
+            textBox.Width = subPanel.Width / 4;
+            textBox.Height = subPanel.Height / 2 - 4;
+            textBox.Location = new System.Drawing.Point(waveViewer.Width + 8, (subPanel.Height - textBox.Height) / 2);
+            textBox.Text = String.Format("{0:0.00}", slice.rate);
             textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ValueChanged += new EventHandler(UpdateRate);
 
             Label label = new Label();
             label.Width = 12;
@@ -105,6 +117,14 @@ namespace SMLooper
             UpdateMainWaveform();
 
             countOfPanels++;
+        }
+
+        private void UpdateRate(object sender, EventArgs e)
+        {
+            NumericUpDown nud = sender as NumericUpDown;
+            Panel pnl = (Panel)nud.Parent;
+            string hash = pnl.Name.TrimStart("subPanel".ToCharArray());
+            controller.UpdateRateByHash(int.Parse(hash), (double)nud.Value);
         }
 
         private void UpdateMainWaveform()

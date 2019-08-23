@@ -94,7 +94,6 @@
             // easyInChBox
             // 
             this.easyInChBox.AutoSize = true;
-            this.easyInChBox.Enabled = false;
             this.easyInChBox.Location = new System.Drawing.Point(91, 64);
             this.easyInChBox.Name = "easyInChBox";
             this.easyInChBox.Size = new System.Drawing.Size(107, 17);

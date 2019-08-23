@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using NAudio.Wave;
 using NAudio.Lame;
 using System.IO;
+using SoundTouchNet;
 
 namespace SMLooper
 {
@@ -144,7 +145,7 @@ namespace SMLooper
 
         private static void TrimWavFile(string inPath, string outPath, double cutFromStart, double cutFromEnd)
         {
-            double kastilEbany =   0.0001 * Math.Pow(cutFromStart / 1000, 2) + 2.2575 * (cutFromStart / 1000) + 3.6794; //0;// 0.0001*Math.Pow(cutFromStart / 1000,3) + (-1)*0.0216*Math.Pow(cutFromStart / 1000,2) + 4.3671*(cutFromStart / 1000) + 1.5984; // -1*0.0034*(cutFromStart/1000) * (cutFromStart / 1000) + 2.9181*(cutFromStart / 1000) + 16.5694;
+            double kastilEbany = 0.0001 * Math.Pow(cutFromStart / 1000, 2) + 2.2575 * (cutFromStart / 1000) + 3.6794; //0;// 0.0001*Math.Pow(cutFromStart / 1000,3) + (-1)*0.0216*Math.Pow(cutFromStart / 1000,2) + 4.3671*(cutFromStart / 1000) + 1.5984; // -1*0.0034*(cutFromStart/1000) * (cutFromStart / 1000) + 2.9181*(cutFromStart / 1000) + 16.5694;
             cutFromStart += kastilEbany;
             cutFromEnd += kastilEbany;
             using (WaveFileReader reader = new WaveFileReader(inPath))
@@ -284,27 +285,39 @@ namespace SMLooper
 
         public byte[] CutPreview(double right, SimFileInfo simFileInfo, out double offset)
         {
-            double left = right - 0.5 >= 0 ? right - 0.5 : 0;
+            double left = right - 1.5 >= 0 ? right - 1.5 : 0;
             double begin = MeasureToMs((int)left, simFileInfo.offset, simFileInfo.bpms);
             double end = MeasureToMs(right, simFileInfo.offset, simFileInfo.bpms);
-            offset = (double)(begin-end)/1000;
 
-            Mp3FileReader reader = new Mp3FileReader(simFileInfo.path + @"/" + simFileInfo.music);
+            offset = (double)(begin - end) / 1000 + 0.01;
 
-            List<byte> bytes = new List<byte>();
-            Mp3Frame frame;
-            while ((frame = reader.ReadNextFrame()) != null)
+            TrimWavFile(Path.GetTempPath() + "/" + simFileInfo.music + ".wav", Path.GetTempPath() + "/temp.wav", begin, end);
+            using (var wr = new WaveFileReader(Path.GetTempPath() + "/temp.wav"))
             {
-                if (reader.CurrentTime.TotalMilliseconds >= begin)
+                using (var ww = new WaveFileWriter(Path.GetTempPath() + "/temp_ei.wav",wr.WaveFormat))
                 {
-                    if (reader.CurrentTime.TotalMilliseconds < end)
-                        bytes.AddRange(frame.RawData);
+                    byte[] wrb = new byte[wr.Length];
+                    wr.Read(wrb, 0, wrb.Length);
+                    short[] shorts = new short[wrb.Length / sizeof(short)];
+                    Buffer.BlockCopy(wrb, 0, shorts, 0, wrb.Length);
+                    for (int i = 0; i < shorts.Length; i++)
+                    {
+                        shorts[i] =(short)( shorts[i] * (double)i/ shorts.Length);
+                    }
+                    wrb = shorts.SelectMany(BitConverter.GetBytes).ToArray();
+                    ww.Write(wrb, 0, wrb.Length);
                 }
             }
-            int br = (int)Math.Round((double)reader.Mp3WaveFormat.AverageBytesPerSecond * 8 / 1000);
-            reader.Close();
+            var w = File.Open(Path.GetTempPath() + "/temp_ei.wav", FileMode.Open);
 
-            return bytes.ToArray();
+            byte[] bytes = new byte[w.Length];
+            w.Read(bytes, 0, (int)w.Length);
+            w.Close();
+
+            File.Delete(Path.GetTempPath() + "/temp.wav");
+            File.Delete(Path.GetTempPath() + "/temp_ei.wav");
+
+            return bytes;
         }
         private byte[] ConvertMp3ToWav(byte[] data)
         {
@@ -327,8 +340,80 @@ namespace SMLooper
                 rdr.CopyTo(wtr);
                 return retMs.ToArray();
             }
+        }
 
+        public byte[] GetRatedData(byte[] data, double rate, WaveFormat wf)
+        {
+            MemoryStream memRead = new MemoryStream(data);
+            WaveFileReader reader = new WaveFileReader(memRead);
+            int numChannels = wf.Channels;
 
+            if (numChannels > 2)
+                throw new Exception("SoundTouch supports only mono or stereo.");
+
+            int sampleRate = wf.SampleRate;
+
+            int bitPerSample = wf.BitsPerSample;
+
+            const int BUFFER_SIZE = 1024 * 16;
+
+            SoundStretcher stretcher = new SoundStretcher(sampleRate, numChannels);
+            MemoryStream memWrite = new MemoryStream();
+            WaveFileWriter writer = new WaveFileWriter(memWrite, new WaveFormat(sampleRate, 16, numChannels));
+
+            stretcher.Tempo = (float)rate;
+
+            byte[] buffer = new byte[BUFFER_SIZE];
+            short[] buffer2 = null;
+
+            if (bitPerSample != 16 && bitPerSample != 8)
+            {
+                throw new Exception("Not implemented yet.");
+            }
+
+            if (bitPerSample == 8)
+            {
+                buffer2 = new short[BUFFER_SIZE];
+            }
+
+            bool finished = false;
+
+            while (true)
+            {
+                int bytesRead = 0;
+                if (!finished)
+                {
+                    bytesRead = reader.Read(buffer, 0, BUFFER_SIZE);
+
+                    if (bytesRead == 0)
+                    {
+                        finished = true;
+                        stretcher.Flush();
+                    }
+                    else
+                    {
+                        if (bitPerSample == 16)
+                        {
+                            stretcher.PutSamplesFromBuffer(buffer, 0, bytesRead);
+                        }
+                        else if (bitPerSample == 8)
+                        {
+                            for (int i = 0; i < BUFFER_SIZE; i++)
+                                buffer2[i] = (short)((buffer[i] - 128) * 256);
+                            stretcher.PutSamples(buffer2);
+                        }
+                    }
+                }
+                bytesRead = stretcher.ReceiveSamplesToBuffer(buffer, 0, BUFFER_SIZE);
+                writer.Write(buffer, 0, bytesRead);
+
+                if (finished && bytesRead == 0)
+                    break;
+            }
+
+            reader.Close();
+            writer.Close();
+            return memWrite.ToArray();
         }
     }
 }
