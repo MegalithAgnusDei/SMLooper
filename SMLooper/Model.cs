@@ -1,20 +1,18 @@
 ﻿using SMLooper.Chart;
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NAudio.Wave;
 using NAudio.Lame;
-using System.IO;
 using SoundTouchNet;
 
 namespace SMLooper
 {
     class Model
     {
+        public static double correctionMs = 12;
+
         public Model()
         {
 
@@ -143,6 +141,11 @@ namespace SMLooper
             return simFileInfo;
         }
 
+        private static double clipCorrectionFunc(double begin, double end)
+        {
+            return 0.9 + (2.35 * (end - begin) / 1000);
+        }
+
         private static void TrimWavFile(string inPath, string outPath, double cutFromStart, double cutFromEnd)
         {
             double kastilEbany = 0.0001 * Math.Pow(cutFromStart / 1000, 2) + 2.2575 * (cutFromStart / 1000) + 3.6794; //0;// 0.0001*Math.Pow(cutFromStart / 1000,3) + (-1)*0.0216*Math.Pow(cutFromStart / 1000,2) + 4.3671*(cutFromStart / 1000) + 1.5984; // -1*0.0034*(cutFromStart/1000) * (cutFromStart / 1000) + 2.9181*(cutFromStart / 1000) + 16.5694;
@@ -155,7 +158,7 @@ namespace SMLooper
                     int bytesPerMillisecond =(int)((double)reader.Length/reader.TotalTime.TotalMilliseconds);
 
                     int startPos = (int)((cutFromStart) * bytesPerMillisecond);
-                    int endPos = (int)((cutFromEnd + 2.24 * (cutFromEnd - cutFromStart) / 1000) * bytesPerMillisecond); 
+                    int endPos = (int)((cutFromEnd + correctionMs + clipCorrectionFunc(cutFromStart,cutFromEnd)) * bytesPerMillisecond); 
 
                     TrimWavFile(reader, writer, startPos, endPos);
                 }
@@ -164,7 +167,7 @@ namespace SMLooper
 
         private static void TrimWavFile(WaveFileReader reader, WaveFileWriter writer, int startPos, int endPos)
         {
-            int mod = (endPos - startPos) % 4;
+            int mod = (endPos - startPos) % reader.BlockAlign;
             endPos -= mod;
             byte[] bytes = new byte[endPos - startPos];
             reader.Position = startPos;
@@ -258,7 +261,7 @@ namespace SMLooper
             bpmList.Insert(0, leftBpm);
 
 
-            return new ChartSlice(1.0, bytes, notes,bpmList.ToArray(), wf, (int)left);
+            return new ChartSlice(1.0, bytes, notes,bpmList.ToArray(), wf, (int)left,end - begin + clipCorrectionFunc(begin,end));
         }
 
         private double MeasureToMs(double measure, double offset, BPM[] bpms)

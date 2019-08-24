@@ -1,12 +1,13 @@
 ﻿using NAudio.Lame;
 using NAudio.Wave;
+using NAudio.Vorbis;
 using SMLooper.Chart;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NAudio.Wave.SampleProviders;
+using NAudio.FileFormats.Mp3;
 
 namespace SMLooper
 {
@@ -50,7 +51,12 @@ namespace SMLooper
 
         public void MakeWav()
         {
-            Mp3FileReader reader = new Mp3FileReader(simFileInfo.path + @"/" + simFileInfo.music);
+            WaveStream reader = null;
+            if (simFileInfo.music.EndsWith(".ogg"))
+                reader = new VorbisWaveReader(simFileInfo.path + @"/" + simFileInfo.music);
+            else if(simFileInfo.music.EndsWith(".mp3"))
+                reader = new Mp3FileReader(simFileInfo.path + @"/" + simFileInfo.music);
+
             WaveStream pcm = WaveFormatConversionStream.CreatePcmStream(reader);
             wf = pcm.WaveFormat;
             WaveFileWriter.CreateWaveFile(Path.GetTempPath() + "/"+ simFileInfo.music+".wav", pcm);
@@ -87,11 +93,13 @@ namespace SMLooper
                     {
                         chartSlices[i].bpms[j].bpm *= chartSlices[i].rate;
                     }
-                    writer.Write(data, 44, data.Length-44);
+                    int bytesCount = data.Length - 44 - (int)(data.Length / chartSlices[i].duration * Model.correctionMs);
+                    bytesCount -= bytesCount % chartSlices[i].wf.BlockAlign;
+                    writer.Write(data, 44, bytesCount);
                 }
             }
             using (var rdr = new WaveFileReader(path + @"/temp.wav"))
-            using (var wtr = new LameMP3FileWriter(path + @"/" + simFileInfo.music, rdr.WaveFormat, 128))
+            using (var wtr = new LameMP3FileWriter(path + @"/" + simFileInfo.music, rdr.WaveFormat, 192))
             {
                 rdr.CopyTo(wtr);
             }

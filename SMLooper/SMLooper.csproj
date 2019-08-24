@@ -41,6 +41,12 @@
     <Reference Include="NAudio.Lame, Version=1.0.9.26885, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.Lame.1.0.9\lib\net40\NAudio.Lame.dll</HintPath>
     </Reference>
+    <Reference Include="NAudio.Vorbis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.Vorbis.1.0.0.0\lib\net35\NAudio.Vorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis, Version=0.8.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NVorbis.0.8.6\lib\net35\NVorbis.dll</HintPath>
+    </Reference>
     <Reference Include="SoundTouchNet, Version=1.2.4669.32984, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\SoundTouchNet.dll</HintPath>

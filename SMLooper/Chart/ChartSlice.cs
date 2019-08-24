@@ -14,8 +14,9 @@ namespace SMLooper.Chart
         public BPM[] bpms;
         public NAudio.Wave.WaveFormat wf;
         public double start;
+        public double duration;
 
-        public ChartSlice(double rate, byte[] rawData, string[] notes, BPM[] bpms, NAudio.Wave.WaveFormat wf, double start)
+        public ChartSlice(double rate, byte[] rawData, string[] notes, BPM[] bpms, NAudio.Wave.WaveFormat wf, double start, double duration)
         {
             this.rate = rate;
             this.rawData = rawData;
@@ -23,6 +24,7 @@ namespace SMLooper.Chart
             this.bpms = bpms;
             this.wf = wf;
             this.start = start;
+            this.duration = duration;
         }
     }
 }

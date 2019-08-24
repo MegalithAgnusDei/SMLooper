@@ -136,6 +136,7 @@
             this.comboBoxMeasure.Name = "comboBoxMeasure";
             this.comboBoxMeasure.Size = new System.Drawing.Size(121, 21);
             this.comboBoxMeasure.TabIndex = 6;
+            this.comboBoxMeasure.SelectedIndex = 0;
             // 
             // label3
             // 
