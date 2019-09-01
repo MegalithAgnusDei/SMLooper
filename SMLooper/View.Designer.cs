@@ -51,6 +51,8 @@
             this.titleLabel = new System.Windows.Forms.Label();
             this.bannerPicBox = new System.Windows.Forms.PictureBox();
             this.mainWaveViewer = new NAudio.Gui.WaveViewer();
+            this.lengthLabel = new System.Windows.Forms.Label();
+            this.clearButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -81,6 +83,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.clearButton);
             this.groupBox1.Controls.Add(this.easyInChBox);
             this.groupBox1.Controls.Add(this.saveButton);
             this.groupBox1.Controls.Add(this.fileLocationTextBox);
@@ -136,7 +139,6 @@
             this.comboBoxMeasure.Name = "comboBoxMeasure";
             this.comboBoxMeasure.Size = new System.Drawing.Size(121, 21);
             this.comboBoxMeasure.TabIndex = 6;
-            this.comboBoxMeasure.SelectedIndex = 0;
             // 
             // label3
             // 
@@ -204,7 +206,7 @@
             this.panel.BackColor = System.Drawing.SystemColors.Window;
             this.panel.Location = new System.Drawing.Point(6, 10);
             this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(286, 316);
+            this.panel.Size = new System.Drawing.Size(286, 310);
             this.panel.TabIndex = 7;
             // 
             // groupBox4
@@ -252,19 +254,43 @@
             // 
             this.mainWaveViewer.AutoScroll = true;
             this.mainWaveViewer.BackColor = System.Drawing.Color.LightGray;
-            this.mainWaveViewer.Location = new System.Drawing.Point(317, 183);
+            this.mainWaveViewer.Location = new System.Drawing.Point(316, 194);
             this.mainWaveViewer.Name = "mainWaveViewer";
             this.mainWaveViewer.SamplesPerPixel = 128;
-            this.mainWaveViewer.Size = new System.Drawing.Size(471, 155);
+            this.mainWaveViewer.Size = new System.Drawing.Size(472, 120);
             this.mainWaveViewer.StartPosition = ((long)(0));
             this.mainWaveViewer.TabIndex = 7;
             this.mainWaveViewer.WaveStream = null;
             // 
+            // lengthLabel
+            // 
+            this.lengthLabel.AutoSize = true;
+            this.lengthLabel.BackColor = System.Drawing.SystemColors.Window;
+            this.lengthLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lengthLabel.Location = new System.Drawing.Point(318, 318);
+            this.lengthLabel.Name = "lengthLabel";
+            this.lengthLabel.Size = new System.Drawing.Size(51, 20);
+            this.lengthLabel.TabIndex = 3;
+            this.lengthLabel.Text = "label5";
+            this.lengthLabel.Visible = false;
+            // 
+            // clearButton
+            // 
+            this.clearButton.Location = new System.Drawing.Point(6, 60);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(75, 23);
+            this.clearButton.TabIndex = 4;
+            this.clearButton.Text = "Clear";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
+            // 
             // View
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.lengthLabel);
             this.Controls.Add(this.mainWaveViewer);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
@@ -273,6 +299,8 @@
             this.Name = "View";
             this.ShowIcon = false;
             this.Text = "Stepmania chart looper";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.View_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.View_DragEnter);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -282,6 +310,7 @@
             this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bannerPicBox)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -310,6 +339,8 @@
         private System.Windows.Forms.Panel panel;
         private NAudio.Gui.WaveViewer mainWaveViewer;
         private System.Windows.Forms.CheckBox easyInChBox;
+        private System.Windows.Forms.Label lengthLabel;
+        private System.Windows.Forms.Button clearButton;
     }
 }
 

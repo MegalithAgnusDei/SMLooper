@@ -17,6 +17,8 @@ namespace SMLooper
         public View()
         {
             InitializeComponent();
+
+            comboBoxMeasure.SelectedIndex = 0;
         }
 
         private void openFileButton_Click(object sender, EventArgs e)
@@ -44,20 +46,32 @@ namespace SMLooper
                     comboBox1.Items.Add(element.diff);
                 }
                 comboBox1.SelectedIndex = 0;
-                
+
             }
         }
 
         private void cutButton_Click(object sender, EventArgs e)
         {
             updateList(
-                controller.Cut(leftRangeTextBox.Text.Replace('.',','), 
-                rightRangeTextBox.Text.Replace('.', ','), 
-                comboBoxMeasure.Text, 
+                controller.Cut(leftRangeTextBox.Text.Replace('.', ','),
+                rightRangeTextBox.Text.Replace('.', ','),
+                comboBoxMeasure.Text,
                 comboBox1.SelectedIndex)
                 );
+            lengthUpdate();
         }
-        
+
+        private void lengthUpdate()
+        {
+            int seconds = Convert.ToInt32(mainWaveViewer.WaveStream.TotalTime.TotalSeconds.ToString().Split(',')[0]);
+            while (seconds >= 60)
+            {
+                seconds %= 60;
+            }
+            lengthLabel.Visible = true;
+            lengthLabel.Text = countOfPanels + " slices - " + mainWaveViewer.WaveStream.TotalTime.TotalMinutes.ToString().Split(',')[0] + " : " + seconds;
+        }
+
         private void updateList(Chart.ChartSlice slice)
         {
             Panel subPanel = new Panel();
@@ -150,8 +164,22 @@ namespace SMLooper
             pnl.Enabled = false;
 
             UpdateMainWaveform();
+            countOfPanels--;
+            lengthUpdate();
         }
 
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            panel.Controls.Clear();
+            countOfPanels = 0;
+            controller.ClearChartSlicesList();
+            UpdateMainWaveform();
+            titleLabel.Text = "";
+            comboBox1.Items.Clear();
+            bannerPicBox.Image = null;
+            fileLocationTextBox.Text = "";
+            controller = new Controller();
+        }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
@@ -160,20 +188,50 @@ namespace SMLooper
             {
                 filePath = folderBrowserDialog.SelectedPath;
                 controller.Save(filePath, easyInChBox.Checked);
-                panel.Controls.Clear();
-                countOfPanels = 0;
-                controller.ClearChartSlicesList();
-                UpdateMainWaveform();
-                titleLabel.Text = "";
-                comboBox1.Items.Clear();
-                bannerPicBox.Image = null;
-                fileLocationTextBox.Text = "";
-                controller = new Controller();
-
+                
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
         }
 
+        private void View_DragEnter(object sender, DragEventArgs e)
+        {
+            if ( e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] s = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (s.Length == 1 & s[0].EndsWith(".sm"))
+                    e.Effect = DragDropEffects.Copy;
+                else
+                    e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void View_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] kostil = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                String filePath;
+                filePath = kostil[0];
+
+                fileLocationTextBox.Text = filePath;
+
+                Chart.SimFileInfo smInfo = controller.ParseSmFile(filePath);
+                controller.MakeWav();
+
+                groupBox4.Visible = true;
+                if (smInfo.banner != "")
+                    bannerPicBox.Image = Image.FromFile(smInfo.path + "//" + smInfo.banner);
+                titleLabel.Text = smInfo.artist + " - " + smInfo.title;
+                comboBox1.Items.Clear();
+                foreach (Chart.Chart element in smInfo.charts)
+                {
+                    comboBox1.Items.Add(element.diff);
+                }
+                comboBox1.SelectedIndex = 0;
+
+            }
+        }
     }
 }
